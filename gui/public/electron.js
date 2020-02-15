@@ -29,7 +29,7 @@ function createMainWindow() {
  * Creates the memory viewer window
  */
 function createMemoryViewerWindow(){
-    windows.memoryViewerWindow = new BrowserWindow({ width: 160, height: 300 });
+    windows.memoryViewerWindow = new BrowserWindow({ width: 300, height: 700 });
     windows.memoryViewerWindow.loadURL(
         isDev
             ? "http://localhost:3000/memoryViewer"

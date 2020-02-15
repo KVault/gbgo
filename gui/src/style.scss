@@ -1,0 +1,63 @@
+
+.page{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.container{
+    display: flex;
+}
+
+.container-column{
+    display: flex;
+    flex-direction: column;
+}
+
+.scroll{
+    overflow: scroll;
+    flex-grow: 1;
+}
+
+.title{
+    letter-spacing: 2px;
+    font-size: x-large;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.small{
+    font-size: small;
+}
+
+.medium{
+    font-size: medium;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.large {
+    font-size: large;
+}
+
+.super {
+    font-size: x-large;
+}
+
+.margin-auto{
+    margin: auto
+}
+
+.center {
+    align-self: center;
+}
+
+.justify-center{
+    justify-content: center;
+}
