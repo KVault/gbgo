@@ -5,6 +5,12 @@ import PropTypes from 'prop-types';
 import {List, AutoSizer} from "react-virtualized"
 import {Legend} from './legend'
 import * as LegendColors from '../../constants/memoryMapColours'
+const handlers = require('../../ipcCalbacks')
+
+
+const electron = window.require('electron');
+const fs = electron.remote.require('fs');
+const ipcRenderer  = electron.ipcRenderer;
 
 export default class MemoryViewer extends Component{
 
@@ -13,6 +19,8 @@ export default class MemoryViewer extends Component{
 
         this.rowRenderer = this.rowRenderer.bind(this)
         this.onSearchKeyUp = this.onSearchKeyUp.bind(this);
+
+        ipcRenderer.on('info' , function(event , data){ debugger; console.log(data.msg) });
 
         let mem = []
         for(let i = 0; i < 0xFFFF; i++){
@@ -115,10 +123,15 @@ export default class MemoryViewer extends Component{
         }
     }
 
+    onMemoryUpdated(data){
+        this.setState({
+            content: [...this.state.content, data[0], data[1]]
+        })
+    }
+
     render(){
         return(
             <Page style={{marginLeft: 10, marginRight: 10}}>
-
                 <span className={"center title"}>MEMORY  VIEWER</span>
                 <TextField id="outlined-basic" size={"small"} onKeyUp={this.onSearchKeyUp} label="Search by address" variant="outlined" />
 
@@ -155,5 +168,6 @@ export default class MemoryViewer extends Component{
 }
 
 MemoryViewer.propTypes = {
-    content: PropTypes.array
+    content: PropTypes.array,
+    scrollToIndex: PropTypes.number
 }

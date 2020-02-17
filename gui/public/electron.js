@@ -2,6 +2,7 @@ const Menu  = require("electron-create-menu")
 const { app, BrowserWindow } = require('electron');
 const path = require("path");
 const isDev = require("electron-is-dev");
+const IpcHandler = require('./ipcHandler')
 
 /**
  * Holds a reference to all the windows that the app can have 
@@ -10,6 +11,7 @@ let windows = {
     mainWindow: null,
     memoryViewerWindow: null,
 }
+
 
 /**
  * Creates the main window, this function will save the window reference in the "windows" variable
@@ -68,3 +70,7 @@ function setMainMenu() {
         return defaultMenu;
       });
 }
+
+module.exports = windows;
+
+
