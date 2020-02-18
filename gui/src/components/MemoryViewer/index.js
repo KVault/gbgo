@@ -8,10 +8,6 @@ import * as LegendColors from '../../constants/memoryMapColours'
 const handlers = require('../../ipcCalbacks')
 
 
-const electron = window.require('electron');
-const fs = electron.remote.require('fs');
-const ipcRenderer  = electron.ipcRenderer;
-
 export default class MemoryViewer extends Component{
 
     constructor(props){
@@ -20,7 +16,7 @@ export default class MemoryViewer extends Component{
         this.rowRenderer = this.rowRenderer.bind(this)
         this.onSearchKeyUp = this.onSearchKeyUp.bind(this);
 
-        ipcRenderer.on('info' , function(event , data){ debugger; console.log(data.msg) });
+        //ipcRenderer.on('info' , function(event , data){ debugger; console.log(data.msg) });
 
         let mem = []
         for(let i = 0; i < 0xFFFF; i++){
