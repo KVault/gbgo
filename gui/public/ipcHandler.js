@@ -1,13 +1,11 @@
 
 const ipc = require('node-ipc');
-const { ipcMain } = require('electron')
-const windows = require('./electron')
+const { BrowserWindow } = require('electron');
 
 
 class IpcHandler{
 
     constructor() {
-
         ipc.config.id = 'gbgoui';
         ipc.config.retry = 1000;        
         ipc.config.rawBuffer=true;
@@ -26,9 +24,10 @@ class IpcHandler{
                 ipc.of.gbgo.on(
                     'data',
                     function(data){
-                        console.log(windows.length)
-                        if(windows.memoryViewerWindow != null)
-                            windows.memoryViewerWindow.webContents.send( 'onMemoryUpdated', data );
+                        let windows = BrowserWindow.getAllWindows()
+                        for(let i = 0; i < windows.length; i++){
+                            windows[i].webContents.send( 'onMemoryUpdated', data );
+                        }
                     }
                 );
             }

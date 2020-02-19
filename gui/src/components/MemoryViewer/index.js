@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import {List, AutoSizer} from "react-virtualized"
 import {Legend} from './legend'
 import * as LegendColors from '../../constants/memoryMapColours'
-const handlers = require('../../ipcCalbacks')
+import {Row} from './row'
+const { ipcRenderer } = window.require('electron');
 
 
 export default class MemoryViewer extends Component{
@@ -15,12 +16,16 @@ export default class MemoryViewer extends Component{
 
         this.rowRenderer = this.rowRenderer.bind(this)
         this.onSearchKeyUp = this.onSearchKeyUp.bind(this);
+        this.updateAnimationEnded = this.updateAnimationEnded.bind(this)
 
-        //ipcRenderer.on('info' , function(event , data){ debugger; console.log(data.msg) });
+        ipcRenderer.on('onMemoryUpdated' , (event , data) => this.onMemoryUpdated(data));
 
-        let mem = []
+        let mem = {}
         for(let i = 0; i < 0xFFFF; i++){
-            mem.push(0);
+            mem[i] = {
+                content: 0,
+                updated: false
+            }
         }
 
         this.state = {
@@ -29,30 +34,34 @@ export default class MemoryViewer extends Component{
         };
     }
 
-    pad(n, width, z) {
-        z = z || '0';
-        n = n + '';
-        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-      }
+
 
     rowRenderer({ index, key, style }){
         let color = this.getBackgroundColor(index);
 
-        let isIndexSelectedClass = index===this.state.scrollToIndex ? "bold large" : ''
-
         return (
             <div key={key} style={style}>
-                <div className={"container " + isIndexSelectedClass} style={{backgroundColor:color, paddingBottom:2}}>
-                    <span className={"container justify-center"} style={{flex: 2}}>
-                            0x{this.pad(index.toString(16), 4).toUpperCase()}
-                    </span>
-                    <span className={"container justify-center"} style={{flex: 3}}>
-                            0x{this.pad(this.state.content[index],4).toUpperCase()}
-                    </span>
-                </div>
-                
+                <Row 
+                index={index} 
+                value={this.state.content[index].content} 
+                color={color} 
+                isSelected={index===this.state.scrollToIndex}
+                isNewUpdate={this.state.content[index].updated}
+                onAnimationEnded={() => this.updateAnimationEnded(index)}/>                
             </div>            
           );
+    }
+
+    updateAnimationEnded(memoryPosition){
+        let c = this.state.content;
+        c[memoryPosition] = {
+            content: c[memoryPosition].content,
+            updated: false
+        }
+
+        this.setState({
+            content: c
+        })
     }
 
     getBackgroundColor(i){
@@ -120,8 +129,16 @@ export default class MemoryViewer extends Component{
     }
 
     onMemoryUpdated(data){
+        if(this.state === null || this.state.content === null)
+            return
+        let c = this.state.content;
+        c[data[1]] = {
+            content: data[2],
+            updated: true
+        }
+
         this.setState({
-            content: [...this.state.content, data[0], data[1]]
+            content: c
         })
     }
 
@@ -143,7 +160,7 @@ export default class MemoryViewer extends Component{
                             {({height, width}) => (
                                 <List
                                     height={height}
-                                    rowCount={this.state.content.length}
+                                    rowCount={0xFFFF}
                                     rowHeight={20}
                                     rowRenderer={this.rowRenderer}
                                     width={width}
@@ -155,8 +172,6 @@ export default class MemoryViewer extends Component{
                 </div>
 
                 {this.renderLegend()}
-
-                
                 
             </Page>
             )

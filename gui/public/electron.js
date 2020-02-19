@@ -17,7 +17,7 @@ let windows = {
  * Creates the main window, this function will save the window reference in the "windows" variable
  */
 function createMainWindow() {
-    windows.mainWindow = new BrowserWindow({ width: 160, height: 144 });
+    windows.mainWindow = new BrowserWindow({ width: 160, height: 144, webPreferences:{nodeIntegration: true} });
     windows.mainWindow.loadURL(
         isDev
             ? "http://localhost:3000/game"
@@ -31,7 +31,7 @@ function createMainWindow() {
  * Creates the memory viewer window
  */
 function createMemoryViewerWindow(){
-    windows.memoryViewerWindow = new BrowserWindow({ width: 300, height: 700 });
+    windows.memoryViewerWindow = new BrowserWindow({ width: 300, height: 700, webPreferences:{nodeIntegration: true} });
     windows.memoryViewerWindow.loadURL(
         isDev
             ? "http://localhost:3000/memoryViewer"

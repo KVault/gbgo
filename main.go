@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net"
 	"os"
+	"time"
 
 	"github.com/kvault/gbgo/cpu"
 )
@@ -36,6 +37,7 @@ func echoServer(c net.Conn) {
 
 	for {
 		sendRandomMemoryData(&c)
+		time.Sleep(1 * time.Second)
 	}
 }
 
@@ -46,7 +48,7 @@ func sendRandomMemoryData(c *net.Conn) {
 	msgStream[1] = byte(rand.Intn(20))
 	msgStream[2] = byte(rand.Intn(256))
 
-	(*c).Write(msgStream[0:2])
+	(*c).Write(msgStream[0:3])
 }
 
 func main() {
