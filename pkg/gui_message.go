@@ -1,4 +1,4 @@
-package main
+package pkg
 
 // GuiMessage represents a message to be sent or receibed from the UI
 type GuiMessage struct {
@@ -7,9 +7,9 @@ type GuiMessage struct {
 
 // MessageTypes Represents all the event types that GBGO can send to the UI
 var MessageTypes = struct {
-	memoryChanged byte
-	newFrame      byte
+	MemoryChanged byte
+	NewFrame      byte
 }{
-	memoryChanged: 0,
-	newFrame:      1,
+	MemoryChanged: 0,
+	NewFrame:      1,
 }
