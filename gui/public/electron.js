@@ -40,6 +40,16 @@ function createMemoryViewerWindow(){
     windows.memoryViewerWindow.on("closed", () => (windows.memoryViewerWindow = null));
 }
 
+function createConsoleWindow(){
+    windows.memoryViewerWindow = new BrowserWindow({ width: 700, height: 500, webPreferences:{nodeIntegration: true} });
+    windows.memoryViewerWindow.loadURL(
+        isDev
+            ? "http://localhost:3000/console"
+            : `file://${path.join(__dirname, "../build/index.html/console")}`
+    );
+    windows.memoryViewerWindow.on("closed", () => (windows.memoryViewerWindow = null));
+}
+
 
 app.on("ready", createMainWindow);
 app.on("window-all-closed", () => {
@@ -62,6 +72,7 @@ function setMainMenu() {
           label: 'Debugger',
           submenu: [
             {label: 'Memory Viewer', click:  () =>createMemoryViewerWindow()},
+            {label: 'Console', click:  () =>createConsoleWindow()},
             separator(),
             {label: 'my second item'},
           ],

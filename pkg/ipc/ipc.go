@@ -1,14 +1,19 @@
 package ipc
 
 import (
+	"io"
 	"log"
 	"net"
 	"os"
+
+	"github.com/kvault/gbgo/pkg"
 )
 
 type IPC struct {
-	address  string
-	listener *net.Listener
+	address    string
+	listener   *net.Listener
+	logChan    chan string
+	MemoryChan chan []byte
 }
 
 // Start Opens a new connection to the IPC's address.
@@ -25,12 +30,12 @@ func (ipc *IPC) Start() error {
 	}
 
 	// Rinse and repeat
-	go acceptConnections(l)
+	go ipc.acceptConnections(l)
 
 	return nil
 }
 
-func acceptConnections(l net.Listener) error {
+func (ipc *IPC) acceptConnections(l net.Listener) error {
 
 	defer l.Close()
 
@@ -42,13 +47,32 @@ func acceptConnections(l net.Listener) error {
 			log.Fatal("accept error:", err)
 		}
 
-		go echoServer(conn)
+		go ipc.reader(conn)
+	}
+}
+
+func (ipc *IPC) reader(r io.Reader) {
+	buf := make([]byte, 160*144*2) // Size of a GB frame times 2
+	for {
+		n, err := r.Read(buf[:])
+		if err != nil {
+			return
+		}
+
+		// buf[0] defines the type of the message
+		// buf[1:n] is the payload
+		switch buf[0] {
+		case pkg.MemoryUpdated:
+			ipc.MemoryChan <- buf[1:n]
+			break
+		case 48:
+			ipc.MemoryChan <- buf[0:2]
+			break
+		}
 	}
 }
 
 func echoServer(c net.Conn) {
-	log.Printf("Client connected [%s]", c.RemoteAddr().Network())
-
 	const frameSize = 160 * 144 * 10 * 10
 	var frame [frameSize]byte
 	for i := 0; i < frameSize; i++ {
@@ -70,6 +94,8 @@ func (ipc *IPC) Stop() error {
 // New Builds a new IPC instance
 func New(address string) *IPC {
 	return &IPC{
-		address: address,
+		address:    address,
+		MemoryChan: make(chan []byte),
+		logChan:    make(chan string),
 	}
 }

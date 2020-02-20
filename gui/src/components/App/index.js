@@ -8,6 +8,7 @@ import * as Paths from "../../constants/routes"
 
 import MemoryViewer from "../MemoryViewer"
 import Game from "../Game"
+import Console from "../Console"
 
 export class App extends Component{
  
@@ -26,6 +27,7 @@ export class App extends Component{
           <Switch>
             <Route exact path={Paths.HOME}> <Game/> </Route>
             <Route path={Paths.MEMORY_VIEWER}> <MemoryViewer/> </Route>
+            <Route path={Paths.CONSOLE}><Console/></Route>
           </Switch>
         </Router>
 
