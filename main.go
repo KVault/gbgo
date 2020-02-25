@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"time"
 
 	"github.com/kvault/gbgo/pkg/cpu"
 	"github.com/kvault/gbgo/pkg/ipc"
@@ -20,6 +21,13 @@ func main() {
 	}
 	ipc := ipc.New("/tmp/app.gbgo")
 	ipc.Start()
+
+	ipc.LogChan <- "Hello World"
+
+	for {
+		ipc.LogChan <- "Foo Bar"
+		time.Sleep(1 * time.Second)
+	}
 
 	for {
 		fmt.Println(<-ipc.MemoryChan)

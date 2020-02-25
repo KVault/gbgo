@@ -1,4 +1,18 @@
 
+@font-face {
+    font-family: system;
+    font-style: normal;
+    src: local("Menlo-Regular");
+}
+body{
+    font-family: "system";
+    background-color: rgb(30, 30, 30);
+}
+
+.white{
+    color:white; 
+}
+
 .page{
     position: absolute;
     display: flex;

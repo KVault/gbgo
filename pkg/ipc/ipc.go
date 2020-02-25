@@ -1,7 +1,6 @@
 package ipc
 
 import (
-	"io"
 	"log"
 	"net"
 	"os"
@@ -9,10 +8,11 @@ import (
 	"github.com/kvault/gbgo/pkg"
 )
 
+// IPC Represents all the channels that can be communicated between the emulator and the UI
 type IPC struct {
 	address    string
-	listener   *net.Listener
-	logChan    chan string
+	connection *net.Conn
+	LogChan    chan string
 	MemoryChan chan []byte
 }
 
@@ -31,6 +31,7 @@ func (ipc *IPC) Start() error {
 
 	// Rinse and repeat
 	go ipc.acceptConnections(l)
+	go ipc.watchChan()
 
 	return nil
 }
@@ -47,14 +48,18 @@ func (ipc *IPC) acceptConnections(l net.Listener) error {
 			log.Fatal("accept error:", err)
 		}
 
-		go ipc.reader(conn)
+		ipc.connection = &conn
+
+		go ipc.reader()
 	}
 }
 
-func (ipc *IPC) reader(r io.Reader) {
+// Listens to messages over the socker, redirects them to the local channels to be picked up by
+// the channel listener. They'll know what to do with it!
+func (ipc *IPC) reader() {
 	buf := make([]byte, 160*144*2) // Size of a GB frame times 2
 	for {
-		n, err := r.Read(buf[:])
+		n, err := (*ipc.connection).Read(buf[:])
 		if err != nil {
 			return
 		}
@@ -69,6 +74,23 @@ func (ipc *IPC) reader(r io.Reader) {
 			ipc.MemoryChan <- buf[0:2]
 			break
 		}
+	}
+}
+
+func (ipc *IPC) watchChan() {
+	for {
+		select {
+		case log := <-ipc.LogChan:
+			ipc.sendMessage(pkg.Log, []byte(log))
+		}
+	}
+}
+
+func (ipc *IPC) sendMessage(action int, payload []byte) {
+	if(ipc.connection != nil){	
+		actionPrefix := []byte{byte(action)}
+		message := append(actionPrefix, payload...)
+		(*ipc.connection).Write(message[0:])
 	}
 }
 
@@ -96,6 +118,6 @@ func New(address string) *IPC {
 	return &IPC{
 		address:    address,
 		MemoryChan: make(chan []byte),
-		logChan:    make(chan string),
+		LogChan:    make(chan string),
 	}
 }

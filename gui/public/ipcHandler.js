@@ -2,6 +2,11 @@
 const ipc = require('node-ipc');
 const { BrowserWindow } = require('electron');
 
+const ipcMessageTypes = {
+    0: "memoryUpdated",
+    1: "newFrame",
+    2: "log"
+}
 
 class IpcHandler{
 
@@ -26,7 +31,7 @@ class IpcHandler{
                     function(data){
                         let windows = BrowserWindow.getAllWindows()
                         for(let i = 0; i < windows.length; i++){
-                            windows[i].webContents.send( 'onMemoryUpdated', data );
+                            windows[i].webContents.send( ipcMessageTypes[data[0]], data.slice(1, data.length));
                         }
                     }
                 );
