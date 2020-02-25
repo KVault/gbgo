@@ -1,4 +1,4 @@
-package cpu
+package hardware
 
 import "fmt"
 
@@ -9,7 +9,7 @@ type CPU struct {
 // Run Infinite loop containing the basic CPU workflow. Which is decode - execute and repeat until death
 func (cpu CPU) Run() {
 	for {
-		fmt.Println(RAM.bank)
+		fmt.Println(RAM.Bank)
 	}
 }
 

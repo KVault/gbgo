@@ -18,7 +18,7 @@ export default class MemoryViewer extends Component{
         this.onSearchKeyUp = this.onSearchKeyUp.bind(this);
         this.updateAnimationEnded = this.updateAnimationEnded.bind(this)
 
-        ipcRenderer.on('onMemoryUpdated' , (event , data) => this.onMemoryUpdated(data));
+        ipcRenderer.on('memoryUpdated' , (event , data) => this.onMemoryUpdated(data));
 
         let mem = {}
         for(let i = 0; i < 0xFFFF; i++){

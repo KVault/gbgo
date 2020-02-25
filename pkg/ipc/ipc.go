@@ -82,6 +82,9 @@ func (ipc *IPC) watchChan() {
 		select {
 		case log := <-ipc.LogChan:
 			ipc.sendMessage(pkg.Log, []byte(log))
+		
+		case memPos := <- ipc.MemoryChan:
+			ipc.sendMessage(pkg.MemoryUpdated, memPos)
 		}
 	}
 }
