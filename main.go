@@ -3,9 +3,10 @@ package main
 import (
 	"math/rand"
 	"net"
+	"time"
 
 	"github.com/kvault/gbgo/pkg/hardware"
-	"github.com/kvault/gbgo/pkg/ipc"
+	"github.com/kvault/gbgo/pkg/log"
 )
 
 // GB TODO Document
@@ -14,11 +15,11 @@ type GB struct {
 	rom *hardware.ROM
 }
 
-func (gb *GB) insertROM(){
+func (gb *GB) insertROM() {
 	// from 0x000 to 0x7FFF the cartrige.
 	var memoryPointer uint16 = 0x0000
 
-	for i := 0; i < 0x7FFF && i < len(gb.rom.Dump); i++{
+	for i := 0; i < 0x7FFF && i < len(gb.rom.Dump); i++ {
 		hardware.Write(memoryPointer, gb.rom.Dump[i])
 		memoryPointer++
 	}
@@ -29,11 +30,8 @@ func main() {
 		cpu: hardware.NewCPU(),
 	}
 
-	gb.rom, _ = hardware.LoadROM("./roms/cpu_instrs.gb");
+	gb.rom, _ = hardware.LoadROM("./roms/cpu_instrs.gb")
 	gb.insertROM()
-
-	ipc := ipc.New("/tmp/app.gbgo")
-	ipc.Start()
 
 	for i, content := range hardware.RAM.Bank {
 		var msgStream [2]byte
@@ -41,7 +39,8 @@ func main() {
 		msgStream[0] = byte(i)
 		msgStream[1] = content
 
-		ipc.MemoryChan <- msgStream[0:]
+		log.Debug("Hola")
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	for {

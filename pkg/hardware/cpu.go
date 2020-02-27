@@ -1,6 +1,8 @@
 package hardware
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // CPU Document this
 type CPU struct {

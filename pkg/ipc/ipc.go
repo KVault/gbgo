@@ -8,6 +8,8 @@ import (
 	"github.com/kvault/gbgo/pkg"
 )
 
+var ipc *IPC
+
 // IPC Represents all the channels that can be communicated between the emulator and the UI
 type IPC struct {
 	address    string
@@ -16,8 +18,18 @@ type IPC struct {
 	MemoryChan chan []byte
 }
 
+func init() {
+	ipc = &IPC{
+		address:    "/tmp/app.gbgo",
+		MemoryChan: make(chan []byte),
+		LogChan:    make(chan string),
+	}
+
+	start()
+}
+
 // Start Opens a new connection to the IPC's address.
-func (ipc *IPC) Start() error {
+func start() error {
 	if err := os.RemoveAll(ipc.address); err != nil {
 		log.Fatal(err)
 		return err
@@ -30,13 +42,13 @@ func (ipc *IPC) Start() error {
 	}
 
 	// Rinse and repeat
-	go ipc.acceptConnections(l)
-	go ipc.watchChan()
+	go acceptConnections(l)
+	go watchChan()
 
 	return nil
 }
 
-func (ipc *IPC) acceptConnections(l net.Listener) error {
+func acceptConnections(l net.Listener) error {
 
 	defer l.Close()
 
@@ -50,13 +62,13 @@ func (ipc *IPC) acceptConnections(l net.Listener) error {
 
 		ipc.connection = &conn
 
-		go ipc.reader()
+		go reader()
 	}
 }
 
 // Listens to messages over the socker, redirects them to the local channels to be picked up by
 // the channel listener. They'll know what to do with it!
-func (ipc *IPC) reader() {
+func reader() {
 	buf := make([]byte, 160*144*2) // Size of a GB frame times 2
 	for {
 		n, err := (*ipc.connection).Read(buf[:])
@@ -77,50 +89,34 @@ func (ipc *IPC) reader() {
 	}
 }
 
-func (ipc *IPC) watchChan() {
+func watchChan() {
 	for {
 		select {
 		case log := <-ipc.LogChan:
-			ipc.sendMessage(pkg.Log, []byte(log))
-		
-		case memPos := <- ipc.MemoryChan:
-			ipc.sendMessage(pkg.MemoryUpdated, memPos)
+			sendMessage(pkg.Log, []byte(log))
+
+		case memPos := <-ipc.MemoryChan:
+			sendMessage(pkg.MemoryUpdated, memPos)
 		}
 	}
 }
 
-func (ipc *IPC) sendMessage(action int, payload []byte) {
-	if(ipc.connection != nil){	
+func sendMessage(action int, payload []byte) {
+	if ipc.connection != nil {
 		actionPrefix := []byte{byte(action)}
 		message := append(actionPrefix, payload...)
 		(*ipc.connection).Write(message[0:])
 	}
 }
 
-func echoServer(c net.Conn) {
-	const frameSize = 160 * 144 * 10 * 10
-	var frame [frameSize]byte
-	for i := 0; i < frameSize; i++ {
-		frame[i] = byte(i % 8)
-	}
-	/*
-		for {
-			sendRandomMemoryData(&c)
-			time.Sleep(1 * time.Second)
-		}
-	*/
-}
-
 // Stop cleans up and closes all the open connections.
-func (ipc *IPC) Stop() error {
+func stop() error {
 	return nil
 }
 
-// New Builds a new IPC instance
-func New(address string) *IPC {
-	return &IPC{
-		address:    address,
-		MemoryChan: make(chan []byte),
-		LogChan:    make(chan string),
+// LogChan receives an undefined number of stringers and one by one redirects them to the channel
+func LocChan(log ...string) {
+	for _, s := range log {
+		ipc.LogChan <- s
 	}
 }

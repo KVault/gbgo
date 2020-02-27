@@ -22,7 +22,7 @@ export default class Console extends Component{
  
   render(){
     return(
-      <div >
+      <div style={{backgroundColor: "grey"}}>
       <p className={"white"}>{this.state.logs.join("\n")}</p>
       </div>
       )
