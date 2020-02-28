@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/kvault/gbgo/pkg/log"
 	"math/rand"
 	"net"
 	"time"
 
 	"github.com/kvault/gbgo/pkg/hardware"
-	"github.com/kvault/gbgo/pkg/log"
 )
 
 // GB TODO Document
@@ -33,18 +33,9 @@ func main() {
 	gb.rom, _ = hardware.LoadROM("./roms/cpu_instrs.gb")
 	gb.insertROM()
 
-	for i, content := range hardware.RAM.Bank {
-		var msgStream [2]byte
-
-		msgStream[0] = byte(i)
-		msgStream[1] = content
-
-		log.Debug("Hola")
-		time.Sleep(500 * time.Millisecond)
-	}
-
 	for {
-
+		log.Debug("Hi there")
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 

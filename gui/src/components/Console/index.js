@@ -1,4 +1,5 @@
 import React, {Component} from "react"
+import Page from "../Page";
 const { ipcRenderer } = window.require('electron');
 
 export default class Console extends Component{
@@ -9,22 +10,21 @@ export default class Console extends Component{
     ipcRenderer.on('log' , (event , data) => this.onLogReceived(data));
 
     this.state = {
-        logs: [],
+        logs: "",
     };
   }
 
   onLogReceived = (data) => {
-    this.state.logs.push(Buffer.from(data).toString())
     this.setState({
-      logs : this.state.logs
+      logs : this.state.logs + Buffer.from(data).toString() + "\n"
     })
   }
  
   render(){
     return(
-      <div style={{backgroundColor: "grey"}}>
-      <p className={"white"}>{this.state.logs.join("\n")}</p>
-      </div>
+        <Page>
+            <textarea readOnly={true} className={"text-area white"} value={this.state.logs}/>
+        </Page>
       )
   }
 }

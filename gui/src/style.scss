@@ -5,8 +5,8 @@
     src: local("Menlo-Regular");
 }
 body{
-    font-family: "system";
-    //background-color: rgb(30, 30, 30);
+    font-family: "system", serif;
+    background-color: rgb(30, 30, 30);
 }
 
 .white{
@@ -74,4 +74,13 @@ body{
 
 .justify-center{
     justify-content: center;
+}
+
+.text-area{
+    width: 99%;
+    height: 99%;
+    background-color: transparent;
+    border: 0;
+    resize: none;
+    outline: none;
 }
